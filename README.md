@@ -26,12 +26,12 @@
     data.info()
 
   # check duplicates and remove them form the data
-    data.duplicate()
+    data.duplicated()
     data.duplicated().sum()
-    data.drop_duplicates()
+    data = data.drop_duplicates()
 
   # remove irrelevant columns :
-    data = data.drom(columns = [{columns name e.g. "student_id","age"}])
+    data = data.drop(columns = [{columns name e.g. "student_id","age"}])
     >> you can use : df.drop([{name of the column}], axis= 1)
 
   # check the missing values : 
@@ -50,7 +50,7 @@
 
   # ckecking invalid label and remove them 
     data = data.dropna(subset=["{name of the label}"]) >> if the label value is nan then the entire row will be droped 
-    data = data.quary("{condition}")
+    data = data.query("{condition}")
 
   # reanalyze the data to find everything is ok or not :
     data.shape
@@ -61,7 +61,7 @@
     y = data["{label name}"]
 
   # spliting the dataset for training and testing [standard ration 80/20]
-    X_train, X_test, y_train, y_test = tts(X ,y , test_size =0.2 , random_status = 42, stratify =y, shuffle =False)
+    X_train, X_test, y_train, y_test = train_test_split(X ,y , test_size =0.2 , random_status = 42, stratify =y, shuffle =False)
 
 
 
@@ -83,7 +83,7 @@
 
    # mean imputation:
     # check the values :
-         X_tarin_prep.isnull().sum()
+         X_train_prep.isnull().sum()
          X_test_prep.isnull().sum()
       # imputation:
          {feature_mean} = X_train_prep["{feature_name}"].mean()
@@ -107,18 +107,18 @@
       X_train_prep[Numbers].max()
     
   # find the upper limit :
-    {feature_uppe_limit} = X_tarin_prep["{feature_name}"].quantile(0.95)
+    {feature_upper_limit} = X_tarin_prep["{feature_name}"].quantile(0.95)
     >>> for multiple features do this:
-      {feature_uppe_limit} = X_train_prep[Numbers].quantile(0.95)  >> it will provide a array of max value of different features
+      {feature_upper_limit} = X_train_prep[Numbers].quantile(0.95)  >> it will provide a array of max value of different features
       print({feature_uppe_limit})
   
   # cliping the feature value: 
     X_tarin_prep["{feature_name}"] = X_tarin_prep["{feature_name}"].clip(upper = {feature_name}) 
     >>> for multi features:
-      X_train_prep[Numbers] = X_train_prep[Numbers].clip(upper=upper_limit,axis=1)   >> axis = 1 mean do it for each feature 
+      X_train_prep[Numbers] = X_train_prep[Numbers].clip(upper={feature_upper_limit},axis=1)   >> axis = 1 mean do it for each feature 
   
   # removing the feature values:
-    X_train_prep = X_train_prep[X_train_prep["{feature_name}"] <= {feature_name}]
+    X_train_prep = X_train_prep[X_train_prep["{feature_name}"] <= {feature_upper_limit}]
 
 # feature scaling :
   scaler = StandardScaler()
@@ -127,18 +127,18 @@
 
 # catagolical encoding :
 
-  # find the feature with string datatype 
-  {variable_name} = X_train_prep.select_dtypes(include=['str']).columns.to_numpy()
-  print({variable_name})
-
   # binary encoding for yes no answer:: 
     X_train_prep["{feature_name}"] = X_train_prep["{feature_name}"].replace("Yes":1, "No":0)
-    >> using map : X_train_prep["{feature_name}"] = X_train_prep["{feature_name}"].map({"Yes": 1, "No": 0})
-
+    >> using map : X_train_prep["{feature_name}"] = X_train_prep["{feature_name}"].map({"Yes":1, "No":0})
+  
+  # find the feature with string datatype 
+    {variable_name} = X_train_prep.select_dtypes(include=['str']).columns.to_numpy()   >>if you find any error with str, you can use object
+    print({variable_name})
+ 
   # one hot encoding: 
     X_train_prep = pd.get_dummies(X_train_prep,columns={variable_name},dtype=int)
-    X_test_prep = pd.get_dummies(X_test_prep,columns={variable_name},dtype=int)
-    X_train_prep, X_test_prep = X_train_prep.align(X_test_prep,join='left,axis=1,fill_value=0) >> this is importent because if the string type feature is only available in test then it will not be in the train split 
+    X_test_prep = pd.get_dummies(X_test_prep,columns= {variable_name},dtype=int)
+    X_train_prep, X_test_prep = X_train_prep.align(X_test_prep,join='left',axis=1,fill_value=0) >> this is importent because if the string type feature is only available in test then it will not be in the train split 
 
 
 # MODEL TRAINING
